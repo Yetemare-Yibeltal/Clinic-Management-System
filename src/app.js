@@ -2,8 +2,10 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import path from "path";
 import { ENV } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -23,6 +25,9 @@ if (ENV.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// ── Serve uploaded files publicly ────────────────
+app.use("/uploads", express.static(path.resolve("uploads")));
+
 // ── Health check ──────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({
@@ -35,6 +40,7 @@ app.get("/api/health", (req, res) => {
 
 // ── Routes ──────────────────────────────────────────
 app.use("/api/auth", authRoutes);
+app.use("/api/upload", uploadRoutes);
 // More routes will be mounted here in later phases:
 // app.use('/api/doctors', doctorRoutes)
 // app.use('/api/appointments', appointmentRoutes)
