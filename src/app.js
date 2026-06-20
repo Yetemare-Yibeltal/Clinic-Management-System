@@ -3,6 +3,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { ENV } from "./config/env.js";
+import authRoutes from "./routes/auth.routes.js";
+import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -31,16 +33,17 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ── Routes will be mounted here in later steps ───
-// app.use('/api/auth', authRoutes)
+// ── Routes ──────────────────────────────────────────
+app.use("/api/auth", authRoutes);
+// More routes will be mounted here in later phases:
 // app.use('/api/doctors', doctorRoutes)
 // app.use('/api/appointments', appointmentRoutes)
 // app.use('/api/schedules', scheduleRoutes)
 // app.use('/api/reports', reportRoutes)
+// app.use('/api/payments', paymentRoutes)
 
-// ── 404 handler ───────────────────────────────────
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
+// ── 404 + Error handling ─────────────────────────
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
