@@ -7,6 +7,7 @@ import { ENV } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import doctorRoutes from "./routes/doctor.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -43,8 +44,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/doctors", doctorRoutes);
+app.use("/api/appointments", appointmentRoutes);
 // More routes will be mounted here in later phases:
-// app.use('/api/appointments', appointmentRoutes)
 // app.use('/api/schedules', scheduleRoutes)
 // app.use('/api/reports', reportRoutes)
 // app.use('/api/payments', paymentRoutes)
