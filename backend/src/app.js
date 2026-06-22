@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import doctorRoutes from "./routes/doctor.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
+import scheduleRoutes from "./routes/schedule.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -45,8 +46,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/schedules", scheduleRoutes);
 // More routes will be mounted here in later phases:
-// app.use('/api/schedules', scheduleRoutes)
 // app.use('/api/reports', reportRoutes)
 // app.use('/api/payments', paymentRoutes)
 
