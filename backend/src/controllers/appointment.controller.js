@@ -1,6 +1,10 @@
 // appointment.controller.js — Create, list, update and manage appointments
 import Appointment from "../models/Appointment.model.js";
 import User from "../models/User.model.js";
+import {
+  markSlotAsBooked,
+  markSlotAsAvailable,
+} from "../services/schedule.service.js";
 
 // POST /api/appointments
 export async function createAppointment(req, res, next) {
@@ -20,7 +24,7 @@ export async function createAppointment(req, res, next) {
         .json({ error: "This doctor is currently unavailable for booking." });
     }
 
-    // Prevent double-booking the same doctor at the same date/time
+    // Prevent double-booking the same doctor at the same date and time
     const conflict = await Appointment.findOne({
       doctor: doctorId,
       date,
@@ -29,12 +33,9 @@ export async function createAppointment(req, res, next) {
     });
 
     if (conflict) {
-      return res
-        .status(409)
-        .json({
-          error:
-            "This time slot is no longer available. Please choose another.",
-        });
+      return res.status(409).json({
+        error: "This time slot is no longer available. Please choose another.",
+      });
     }
 
     const appointment = await Appointment.create({
@@ -49,6 +50,9 @@ export async function createAppointment(req, res, next) {
       paymentMethod: paymentMethod || "cash",
       status: "pending",
     });
+
+    // Automatically mark the slot as booked in the doctor's schedule
+    await markSlotAsBooked(doctorId, date, time);
 
     const populated = await appointment.populate([
       { path: "patient", select: "firstName lastName email phone" },
@@ -76,7 +80,6 @@ export async function getAppointments(req, res, next) {
     } else if (req.user.role === "doctor") {
       filter.doctor = req.user._id;
     }
-    // admin: no restriction, sees everything
 
     if (status && status !== "all") filter.status = status;
     if (date && date !== "all") filter.date = date;
@@ -87,7 +90,7 @@ export async function getAppointments(req, res, next) {
       .populate("doctor", "firstName lastName specialization consultationFee")
       .sort({ date: -1, time: 1 });
 
-    // Optional search by patient or doctor name (done in-memory since names are in joined docs)
+    // Optional name search done in-memory after population
     if (q) {
       const query = q.toLowerCase();
       appointments = appointments.filter((a) => {
@@ -116,7 +119,7 @@ export async function getAppointmentById(req, res, next) {
       return res.status(404).json({ error: "Appointment not found." });
     }
 
-    // Patients/doctors can only view their own appointment
+    // Patients and doctors can only view their own appointments
     if (
       req.user.role === "patient" &&
       String(appointment.patient._id) !== String(req.user._id)
@@ -125,6 +128,7 @@ export async function getAppointmentById(req, res, next) {
         .status(403)
         .json({ error: "You do not have access to this appointment." });
     }
+
     if (
       req.user.role === "doctor" &&
       String(appointment.doctor._id) !== String(req.user._id)
@@ -153,9 +157,9 @@ export async function updateAppointmentStatus(req, res, next) {
     ];
 
     if (!validStatuses.includes(status)) {
-      return res
-        .status(400)
-        .json({ error: `Status must be one of: ${validStatuses.join(", ")}` });
+      return res.status(400).json({
+        error: `Status must be one of: ${validStatuses.join(", ")}`,
+      });
     }
 
     const appointment = await Appointment.findById(req.params.id);
@@ -192,11 +196,21 @@ export async function updateAppointmentStatus(req, res, next) {
       appointment.cancelledBy = "admin";
     }
 
+    const previousStatus = appointment.status;
     appointment.status = status;
     if (cancellationNote) appointment.cancellationNote = cancellationNote;
     if (notes) appointment.notes = notes;
 
     await appointment.save();
+
+    // If appointment is cancelled, free up the slot in the doctor's schedule
+    if (status === "cancelled" && previousStatus !== "cancelled") {
+      await markSlotAsAvailable(
+        String(appointment.doctor),
+        appointment.date,
+        appointment.time,
+      );
+    }
 
     const populated = await appointment.populate([
       { path: "patient", select: "firstName lastName email phone" },
@@ -219,10 +233,21 @@ export async function bulkUpdateStatus(req, res, next) {
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ error: "ids must be a non-empty array." });
     }
+
     if (!validStatuses.includes(status)) {
-      return res
-        .status(400)
-        .json({ error: `Status must be one of: ${validStatuses.join(", ")}` });
+      return res.status(400).json({
+        error: `Status must be one of: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    // If bulk cancelling, free up all those slots in the schedule
+    if (status === "cancelled") {
+      const appointments = await Appointment.find({ _id: { $in: ids } });
+      for (const apt of appointments) {
+        if (apt.status !== "cancelled") {
+          await markSlotAsAvailable(String(apt.doctor), apt.date, apt.time);
+        }
+      }
     }
 
     const result = await Appointment.updateMany(
