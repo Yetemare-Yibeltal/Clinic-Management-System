@@ -1,6 +1,5 @@
 // schedule.routes.js — Maps /api/schedules/* URLs to controller functions
 import { Router } from "express";
-import { body } from "express-validator";
 import {
   getSchedule,
   saveSchedule,
@@ -8,26 +7,33 @@ import {
 } from "../controllers/schedule.controller.js";
 import { protect, restrictTo } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
+import {
+  validateDoctorId,
+  validateWeeklyGrid,
+  validateSlotUpdate,
+} from "../middleware/schedule.validator.js";
 
 const router = Router();
 
-// ── Validation rules ──────────────────────────────
-const slotRules = [
-  body("day").notEmpty().withMessage("day is required"),
-  body("slot").notEmpty().withMessage("slot is required"),
-];
-
-// ── Routes ────────────────────────────────────────
 // Any logged-in user can view a doctor's schedule
-router.get("/:doctorId", protect, getSchedule);
+router.get("/:doctorId", protect, validateDoctorId, validate, getSchedule);
 
-// Only doctors and admins can save or modify a schedule
-router.put("/:doctorId", protect, restrictTo("doctor", "admin"), saveSchedule);
+// Only doctors and admins can save a full weekly schedule
+router.put(
+  "/:doctorId",
+  protect,
+  restrictTo("doctor", "admin"),
+  validateWeeklyGrid,
+  validate,
+  saveSchedule,
+);
+
+// Only doctors and admins can toggle a single slot
 router.patch(
   "/:doctorId/slot",
   protect,
   restrictTo("doctor", "admin"),
-  slotRules,
+  validateSlotUpdate,
   validate,
   updateSlot,
 );
