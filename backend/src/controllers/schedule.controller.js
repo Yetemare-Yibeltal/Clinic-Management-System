@@ -1,9 +1,10 @@
 // schedule.controller.js — Get and save doctor weekly availability grid
 import Schedule from "../models/Schedule.model.js";
 import User from "../models/User.model.js";
+import { getAvailableSlotsForDate } from "../services/schedule.helper.js";
 
 // GET /api/schedules/:doctorId
-// Returns the weekly grid for a specific doctor
+// Returns the full weekly grid for a specific doctor
 export async function getSchedule(req, res, next) {
   try {
     const { doctorId } = req.params;
@@ -15,7 +16,6 @@ export async function getSchedule(req, res, next) {
 
     let schedule = await Schedule.findOne({ doctor: doctorId });
 
-    // If no schedule exists yet, return an empty grid
     if (!schedule) {
       return res.json({
         doctorId,
@@ -39,9 +39,49 @@ export async function getSchedule(req, res, next) {
   }
 }
 
+// GET /api/schedules/:doctorId/available?date=2025-06-25
+// Returns only the available time slots for a doctor on a specific date
+// Used by the Book Appointment page to show patients what they can book
+export async function getAvailableSlots(req, res, next) {
+  try {
+    const { doctorId } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res
+        .status(400)
+        .json({ error: "date query parameter is required." });
+    }
+
+    const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
+    if (!doctor) {
+      return res.status(404).json({ error: "Doctor not found." });
+    }
+
+    if (!doctor.available) {
+      return res.json({
+        doctorId,
+        date,
+        availableSlots: [],
+        message: "This doctor is currently unavailable for booking.",
+      });
+    }
+
+    const availableSlots = await getAvailableSlotsForDate(doctorId, date);
+
+    res.json({
+      doctorId,
+      doctorName: `${doctor.firstName} ${doctor.lastName}`,
+      date,
+      availableSlots,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // PUT /api/schedules/:doctorId
 // Replaces the entire weekly grid for a doctor
-// Doctors can only update their own schedule. Admins can update any.
 export async function saveSchedule(req, res, next) {
   try {
     const { doctorId } = req.params;
@@ -52,7 +92,6 @@ export async function saveSchedule(req, res, next) {
       return res.status(404).json({ error: "Doctor not found." });
     }
 
-    // Doctors may only edit their own schedule
     if (
       req.user.role === "doctor" &&
       String(req.user._id) !== String(doctorId)
@@ -62,7 +101,6 @@ export async function saveSchedule(req, res, next) {
         .json({ error: "You can only edit your own schedule." });
     }
 
-    // Validate that slot values are only: avail, booked, break
     const validValues = ["avail", "booked", "break"];
     for (const day of Object.keys(weeklyGrid || {})) {
       for (const [slot, value] of Object.entries(weeklyGrid[day] || {})) {
@@ -74,7 +112,7 @@ export async function saveSchedule(req, res, next) {
       }
     }
 
-    const schedule = await Schedule.findOneAndUpdate(
+    await Schedule.findOneAndUpdate(
       { doctor: doctorId },
       { doctor: doctorId, weeklyGrid: weeklyGrid || {} },
       { new: true, upsert: true },
@@ -92,9 +130,6 @@ export async function saveSchedule(req, res, next) {
 
 // PATCH /api/schedules/:doctorId/slot
 // Toggles a single time slot in the weekly grid
-// Body: { day: "1", slot: "2", type: "avail" | "break" | null }
-// Passing null removes the slot entirely
-// Booked slots cannot be changed
 export async function updateSlot(req, res, next) {
   try {
     const { doctorId } = req.params;
@@ -120,14 +155,12 @@ export async function updateSlot(req, res, next) {
 
     let schedule = await Schedule.findOne({ doctor: doctorId });
 
-    // Create schedule document if it doesn't exist yet
     if (!schedule) {
       schedule = await Schedule.create({ doctor: doctorId, weeklyGrid: {} });
     }
 
     const dayGrid = schedule.weeklyGrid.get(String(day)) || new Map();
 
-    // Prevent changing a booked slot
     if (dayGrid.get(String(slot)) === "booked") {
       return res.status(409).json({ error: "Cannot modify a booked slot." });
     }
