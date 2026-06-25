@@ -1,4 +1,4 @@
-// env.js — Centralized access to environment variables
+// env.js — Centralized access to all environment variables
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,4 +10,7 @@ export const ENV = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
   NODE_ENV: process.env.NODE_ENV || "development",
   CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
+  CHAPA_SECRET_KEY: process.env.CHAPA_SECRET_KEY,
+  CHAPA_BASE_URL: process.env.CHAPA_BASE_URL || "https://api.chapa.co/v1",
+  CHAPA_WEBHOOK_SECRET: process.env.CHAPA_WEBHOOK_SECRET,
 };
