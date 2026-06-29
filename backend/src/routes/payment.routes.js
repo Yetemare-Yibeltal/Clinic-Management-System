@@ -1,6 +1,5 @@
 // payment.routes.js — Maps /api/payments/* URLs to controller functions
-import { Router } from "express";
-import { body, param, query } from "express-validator";
+import { Router } from 'express'
 import {
   initializeChapaPayment,
   verifyChapaPayment,
@@ -12,141 +11,135 @@ import {
   getPayments,
   getPaymentById,
   getPaymentByAppointment,
-} from "../controllers/payment.controller.js";
-import { protect, restrictTo } from "../middleware/auth.middleware.js";
-import { validate } from "../middleware/validate.middleware.js";
-import { uploadSingle } from "../middleware/upload.middleware.js";
+} from '../controllers/payment.controller.js'
+import { protect, restrictTo } from '../middleware/auth.middleware.js'
+import { validate } from '../middleware/validate.middleware.js'
+import { uploadSingle } from '../middleware/upload.middleware.js'
+import {
+  validateInitializePayment,
+  validateVerifyPayment,
+  validateManualPayment,
+  validateGetInstructions,
+  validatePaymentId,
+  validateRejectPayment,
+  validateGetPayments,
+  validateAppointmentId,
+} from '../middleware/payment.validator.js'
 
-const router = Router();
+const router = Router()
 
-// ── Validation rules ──────────────────────────────────
+// ── Chapa webhook — NO auth required ──────────────────
+// Chapa calls this directly when a payment event happens
+// This MUST be the first route — before any protect middleware
+router.post('/webhook', handleChapaWebhook)
 
-const initializeRules = [
-  body("appointmentId")
-    .notEmpty()
-    .isMongoId()
-    .withMessage("Valid appointment ID is required"),
-];
-
-const verifyRules = [body("txRef").notEmpty().withMessage("txRef is required")];
-
-const manualPaymentRules = [
-  body("appointmentId")
-    .notEmpty()
-    .isMongoId()
-    .withMessage("Valid appointment ID is required"),
-  body("method")
-    .notEmpty()
-    .isIn([
-      "telebirr",
-      "cbe-birr",
-      "awash-birr",
-      "hellocash",
-      "mobile-banking",
-      "cash",
-      "bank-transfer",
-    ])
-    .withMessage("Invalid payment method"),
-  body("manualTransactionId")
-    .optional()
-    .isString()
-    .withMessage("Transaction ID must be a string"),
-  body("manualNote").optional().isString().withMessage("Note must be a string"),
-];
-
-const rejectRules = [
-  body("rejectionReason")
-    .optional()
-    .isString()
-    .withMessage("Rejection reason must be a string"),
-];
-
-const instructionsRules = [
-  param("method")
-    .isIn([
-      "telebirr",
-      "cbe-birr",
-      "awash-birr",
-      "hellocash",
-      "mobile-banking",
-      "bank-transfer",
-      "cash",
-    ])
-    .withMessage("Invalid payment method"),
-  query("amount").optional().isNumeric().withMessage("Amount must be a number"),
-];
-
-// ── Routes ────────────────────────────────────────────
-
-// Chapa webhook — NO auth required (Chapa calls this directly)
-// Must be before any protect middleware
-router.post("/webhook", handleChapaWebhook);
-
-// Get payment instructions for a method (any logged in user)
+// ── Get payment instructions for a method ─────────────
+// Patient selects TeleBirr / CBE Birr / Cash etc.
+// Returns account numbers and step by step instructions
 router.get(
-  "/instructions/:method",
+  '/instructions/:method',
   protect,
-  instructionsRules,
+  validateGetInstructions,
   validate,
-  getInstructions,
-);
+  getInstructions
+)
 
-// Initialize Chapa online payment (patient only)
+// ── Initialize Chapa online payment ───────────────────
+// Patient clicks Pay with Chapa
+// Returns a checkout URL to redirect patient to Chapa page
+// Chapa page handles TeleBirr, CBE Birr, Awash Birr, HelloCash, Card internally
 router.post(
-  "/initialize",
+  '/initialize',
   protect,
-  restrictTo("patient"),
-  initializeRules,
+  restrictTo('patient'),
+  validateInitializePayment,
   validate,
-  initializeChapaPayment,
-);
+  initializeChapaPayment
+)
 
-// Verify Chapa payment after redirect (patient only)
+// ── Verify Chapa payment after redirect ───────────────
+// Called after patient returns from Chapa checkout page
+// Calls Chapa verify API to confirm payment actually succeeded
+// Never trust the redirect alone — always verify server side
 router.post(
-  "/verify",
+  '/verify',
   protect,
-  restrictTo("patient"),
-  verifyRules,
+  restrictTo('patient'),
+  validateVerifyPayment,
   validate,
-  verifyChapaPayment,
-);
+  verifyChapaPayment
+)
 
-// Submit manual payment proof (patient only, optional receipt upload)
+// ── Submit manual payment proof ───────────────────────
+// Patient submits proof for TeleBirr, CBE Birr, Awash Birr,
+// HelloCash, Mobile Banking, Cash or Bank Transfer
+// Optional: patient can upload a receipt screenshot
 router.post(
-  "/manual",
+  '/manual',
   protect,
-  restrictTo("patient"),
-  uploadSingle("receipt"),
-  manualPaymentRules,
+  restrictTo('patient'),
+  uploadSingle('receipt'),
+  validateManualPayment,
   validate,
-  submitManualPayment,
-);
+  submitManualPayment
+)
 
-// Get payment by appointment ID (patient and admin)
-router.get("/appointment/:appointmentId", protect, getPaymentByAppointment);
+// ── Get payment for a specific appointment ────────────
+// Used on appointment detail page to show payment status
+router.get(
+  '/appointment/:appointmentId',
+  protect,
+  validateAppointmentId,
+  validate,
+  getPaymentByAppointment
+)
 
-// Get all payments — patient sees own, admin sees all
-router.get("/", protect, getPayments);
+// ── Get all payments (role scoped) ────────────────────
+// Patient sees only their own payments
+// Admin sees all payments with optional filters
+// Supports: ?status=completed&method=telebirr&startDate=&endDate=
+router.get(
+  '/',
+  protect,
+  validateGetPayments,
+  validate,
+  getPayments
+)
 
-// Get single payment by ID
-router.get("/:id", protect, getPaymentById);
+// ── Get single payment by ID ──────────────────────────
+// Patient can only get their own payment
+// Admin can get any payment
+router.get(
+  '/:id',
+  protect,
+  validatePaymentId,
+  validate,
+  getPaymentById
+)
 
-// Confirm manual payment (admin only)
+// ── Admin: confirm a manual payment ───────────────────
+// After admin reviews proof (TeleBirr screenshot, bank receipt etc.)
+// and confirms it is valid — marks payment as completed
+// and marks the appointment as paid
 router.patch(
-  "/:id/confirm",
+  '/:id/confirm',
   protect,
-  restrictTo("admin"),
-  confirmManualPayment,
-);
-
-// Reject manual payment (admin only)
-router.patch(
-  "/:id/reject",
-  protect,
-  restrictTo("admin"),
-  rejectRules,
+  restrictTo('admin'),
+  validatePaymentId,
   validate,
-  rejectManualPayment,
-);
+  confirmManualPayment
+)
 
-export default router;
+// ── Admin: reject a manual payment ────────────────────
+// If proof is invalid, unclear, or wrong amount
+// Patient will need to resubmit correct proof
+router.patch(
+  '/:id/reject',
+  protect,
+  restrictTo('admin'),
+  validateRejectPayment,
+  validate,
+  rejectManualPayment
+)
+
+export default router
