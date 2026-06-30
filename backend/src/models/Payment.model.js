@@ -195,7 +195,6 @@ paymentSchema.index({ appointment: 1 });
 paymentSchema.index({ patient: 1 });
 paymentSchema.index({ status: 1 });
 paymentSchema.index({ method: 1 });
-paymentSchema.index({ chapaTxRef: 1 });
 paymentSchema.index({ chapaPaymentRef: 1 });
 paymentSchema.index({ createdAt: -1 });
 
