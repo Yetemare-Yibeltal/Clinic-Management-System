@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Appointment Confirmed</title>
+  <title>Appointment Cancelled</title>
   <style>
     body { margin: 0; padding: 0; background: #f4f7fb; font-family: Arial, sans-serif; }
     .wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
     .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #059669, #0d9488); padding: 36px 30px; text-align: center; }
+    .header { background: linear-gradient(135deg, #dc2626, #9f1239); padding: 36px 30px; text-align: center; }
     .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
     .header p { color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px; }
     .body { padding: 32px 30px; }
     .text { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 16px; }
-    .details-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 24px; margin: 20px 0; }
-    .details-card h3 { margin: 0 0 16px; color: #064e3b; font-size: 15px; }
-    .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #d1fae5; }
+    .details-card { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 24px; margin: 20px 0; }
+    .details-card h3 { margin: 0 0 16px; color: #881337; font-size: 15px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #fecdd3; }
     .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .detail-label { color: #6b7280; font-size: 13px; }
     .detail-value { color: #1e293b; font-size: 13px; font-weight: 600; }
-    .status-badge { display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; margin-bottom: 20px; }
+    .reason-box { background: #fef2f2; border-left: 4px solid #dc2626; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+    .reason-box p { margin: 0; font-size: 14px; color: #7f1d1d; line-height: 1.6; }
     .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
     .footer { padding: 20px 30px; background: #f8fafc; text-align: center; }
     .footer p { margin: 4px 0; font-size: 12px; color: #94a3b8; }
@@ -29,25 +30,20 @@
   <div class="wrapper">
     <div class="card">
       <div class="header">
-        <h1>✅ Appointment Confirmed</h1>
-        <p>Your appointment has been confirmed successfully</p>
+        <h1>❌ Appointment Cancelled</h1>
+        <p>Your appointment has been cancelled</p>
       </div>
       <div class="body">
         <p class="text">Dear <strong>{{PATIENT_NAME}}</strong>,</p>
         <p class="text">
-          Your appointment at <strong>{{CLINIC_NAME}}</strong> has been confirmed.
-          Please find your appointment details below.
+          We regret to inform you that your appointment at
+          <strong>{{CLINIC_NAME}}</strong> has been cancelled.
         </p>
-        <div class="status-badge">CONFIRMED</div>
         <div class="details-card">
-          <h3>📋 Appointment Details</h3>
+          <h3>📋 Cancelled Appointment Details</h3>
           <div class="detail-row">
             <span class="detail-label">Doctor</span>
             <span class="detail-value">Dr. {{DOCTOR_NAME}}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Specialization</span>
-            <span class="detail-value">{{SPECIALIZATION}}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">Date</span>
@@ -58,31 +54,26 @@
             <span class="detail-value">{{TIME}}</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Type</span>
-            <span class="detail-value">{{TYPE}}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Visit Mode</span>
-            <span class="detail-value">{{VISIT_MODE}}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Consultation Fee</span>
-            <span class="detail-value">{{FEE}}</span>
+            <span class="detail-label">Cancelled By</span>
+            <span class="detail-value">{{CANCELLED_BY}}</span>
           </div>
         </div>
+        <div class="reason-box">
+          <p><strong>Reason:</strong> {{CANCELLATION_NOTE}}</p>
+        </div>
         <p class="text">
-          📍 <strong>Location:</strong> {{CLINIC_ADDRESS}}<br />
-          📞 <strong>Contact:</strong> {{CLINIC_PHONE}}
+          To book a new appointment, please contact us at
+          <strong>{{CLINIC_PHONE}}</strong> or visit our clinic.
         </p>
         <hr class="divider" />
         <p class="text" style="font-size:13px; color:#94a3b8;">
-          Please arrive 10 minutes before your scheduled appointment time.
-          If you need to cancel or reschedule, please contact us at least 24 hours in advance.
+          We apologize for any inconvenience caused.
+          If you have any questions, please contact us directly.
         </p>
       </div>
       <div class="footer">
         <p>© {{YEAR}} {{CLINIC_NAME}}. All rights reserved.</p>
-        <p>{{CLINIC_ADDRESS}} | {{CLINIC_PHONE}}</p>
+        <p>{{CLINIC_PHONE}}</p>
       </div>
     </div>
   </div>
