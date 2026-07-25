@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appointment Reminder</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7fb; font-family: Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #d97706, #b45309); padding: 36px 30px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .header p { color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px; }
+    .body { padding: 32px 30px; }
+    .text { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 16px; }
+    .details-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 24px; margin: 20px 0; }
+    .details-card h3 { margin: 0 0 16px; color: #78350f; font-size: 15px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #fde68a; }
+    .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .detail-label { color: #6b7280; font-size: 13px; }
+    .detail-value { color: #1e293b; font-size: 13px; font-weight: 600; }
+    .reminder-box { background: #fef3c7; border-left: 4px solid #d97706; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+    .reminder-box p { margin: 0; font-size: 14px; color: #78350f; line-height: 1.6; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+    .footer { padding: 20px 30px; background: #f8fafc; text-align: center; }
+    .footer p { margin: 4px 0; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <h1>⏰ Appointment Reminder</h1>
+        <p>You have an appointment tomorrow</p>
+      </div>
+      <div class="body">
+        <p class="text">Dear <strong>{{PATIENT_NAME}}</strong>,</p>
+        <p class="text">
+          This is a friendly reminder that you have an appointment at
+          <strong>{{CLINIC_NAME}}</strong> scheduled for <strong>tomorrow</strong>.
+        </p>
+        <div class="reminder-box">
+          <p>🗓️ <strong>Tomorrow — {{DATE}} at {{TIME}}</strong></p>
+        </div>
+        <div class="details-card">
+          <h3>📋 Appointment Details</h3>
+          <div class="detail-row">
+            <span class="detail-label">Doctor</span>
+            <span class="detail-value">Dr. {{DOCTOR_NAME}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Specialization</span>
+            <span class="detail-value">{{SPECIALIZATION}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Date</span>
+            <span class="detail-value">{{DATE}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Time</span>
+            <span class="detail-value">{{TIME}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Visit Mode</span>
+            <span class="detail-value">{{VISIT_MODE}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Location</span>
+            <span class="detail-value">{{CLINIC_ADDRESS}}</span>
+          </div>
+        </div>
+        <p class="text">
+          📞 Need to cancel or reschedule?<br />
+          Please contact us immediately at <strong>{{CLINIC_PHONE}}</strong>
+        </p>
+        <hr class="divider" />
+        <p class="text" style="font-size:13px; color:#94a3b8;">
+          Please arrive 10 minutes early and bring any relevant medical documents.
+        </p>
+      </div>
+      <div class="footer">
+        <p>© {{YEAR}} {{CLINIC_NAME}}. All rights reserved.</p>
+        <p>{{CLINIC_ADDRESS}} | {{CLINIC_PHONE}}</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

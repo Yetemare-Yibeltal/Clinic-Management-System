@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appointment Rescheduled</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7fb; font-family: Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 36px 30px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .header p { color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px; }
+    .body { padding: 32px 30px; }
+    .text { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 16px; }
+    .old-date { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; }
+    .old-date p { margin: 0; font-size: 14px; color: #991b1b; text-decoration: line-through; }
+    .new-date { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+    .new-date p { margin: 0; font-size: 14px; color: #065f46; font-weight: 600; }
+    .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; margin: 20px 0; }
+    .details-card h3 { margin: 0 0 16px; color: #1e293b; font-size: 15px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0; }
+    .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .detail-label { color: #6b7280; font-size: 13px; }
+    .detail-value { color: #1e293b; font-size: 13px; font-weight: 600; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+    .footer { padding: 20px 30px; background: #f8fafc; text-align: center; }
+    .footer p { margin: 4px 0; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <h1>🔄 Appointment Rescheduled</h1>
+        <p>Your appointment date has been changed</p>
+      </div>
+      <div class="body">
+        <p class="text">Dear <strong>{{PATIENT_NAME}}</strong>,</p>
+        <p class="text">
+          Your appointment with <strong>Dr. {{DOCTOR_NAME}}</strong> has been rescheduled.
+          Please note the new date and time below.
+        </p>
+        <div class="old-date">
+          <p>❌ Old: {{OLD_DATE}} at {{OLD_TIME}}</p>
+        </div>
+        <div class="new-date">
+          <p>✅ New: {{NEW_DATE}} at {{NEW_TIME}}</p>
+        </div>
+        <div class="details-card">
+          <h3>📋 Updated Appointment Details</h3>
+          <div class="detail-row">
+            <span class="detail-label">Doctor</span>
+            <span class="detail-value">Dr. {{DOCTOR_NAME}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">New Date</span>
+            <span class="detail-value">{{NEW_DATE}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">New Time</span>
+            <span class="detail-value">{{NEW_TIME}}</span>
+          </div>
+        </div>
+        <p class="text">
+          If this new time does not work for you, please contact us at
+          <strong>{{CLINIC_PHONE}}</strong> to arrange an alternative.
+        </p>
+        <hr class="divider" />
+        <p class="text" style="font-size:13px; color:#94a3b8;">
+          Please arrive 10 minutes before your new appointment time.
+        </p>
+      </div>
+      <div class="footer">
+        <p>© {{YEAR}} {{CLINIC_NAME}}. All rights reserved.</p>
+        <p>{{CLINIC_PHONE}}</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
