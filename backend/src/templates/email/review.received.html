@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Patient Review</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7fb; font-family: Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #d97706, #b45309); padding: 36px 30px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .header p { color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px; }
+    .body { padding: 32px 30px; }
+    .text { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 16px; }
+    .stars { font-size: 28px; text-align: center; margin: 20px 0 8px; }
+    .rating-label { text-align: center; font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 20px; }
+    .comment-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .comment-box p { margin: 0; font-size: 15px; color: #78350f; line-height: 1.7; font-style: italic; }
+    .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+    .info-box p { margin: 0; font-size: 14px; color: #475569; line-height: 1.7; }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 24px 0; }
+    .footer { padding: 20px 30px; background: #f8fafc; text-align: center; }
+    .footer p { margin: 4px 0; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <h1>⭐ New Patient Review</h1>
+        <p>A patient has left you a review</p>
+      </div>
+      <div class="body">
+        <p class="text">Dear <strong>{{DOCTOR_NAME}}</strong>,</p>
+        <p class="text">
+          A patient has submitted a review for your services at
+          <strong>{{CLINIC_NAME}}</strong>. Here are the details:
+        </p>
+        <div class="stars">
+          {{RATING_STARS}}
+        </div>
+        <div class="rating-label">{{RATING}} out of 5 stars</div>
+        <div class="comment-box">
+          <p>"{{COMMENT}}"</p>
+        </div>
+        <div class="info-box">
+          <p>
+            ℹ️ This review is currently <strong>pending admin approval</strong>
+            before it becomes publicly visible on your profile.<br /><br />
+            You will be able to respond to this review once it has been approved
+            by the clinic admin.
+          </p>
+        </div>
+        <hr class="divider" />
+        <p class="text" style="font-size:13px; color:#94a3b8;">
+          Patient reviews help us improve our services. Thank you for your
+          dedication to patient care at {{CLINIC_NAME}}.
+        </p>
+      </div>
+      <div class="footer">
+        <p>© {{YEAR}} {{CLINIC_NAME}}. All rights reserved.</p>
+        <p>This is an automated notification email.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
