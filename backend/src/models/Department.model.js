@@ -106,8 +106,5 @@ const departmentSchema = new mongoose.Schema(
 );
 
 // ── Indexes ────────────────────────────────────────────
-departmentSchema.index({ name: 1 });
 departmentSchema.index({ isActive: 1 });
-departmentSchema.index({ shortCode: 1 });
-
 export default mongoose.model("Department", departmentSchema);
