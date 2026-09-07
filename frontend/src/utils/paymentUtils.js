@@ -1,8 +1,5 @@
 // paymentUtils.js — Payment helper utilities for the frontend
-import {
-  PAYMENT_METHODS,
-  PAYMENT_METHOD_MAP,
-} from "../constants/paymentMethods.js";
+import { PAYMENT_METHOD_MAP } from "../constants/paymentMethods.js";
 import { formatETB } from "./formatters.js";
 
 // ── Get payment method details ─────────────────────────
