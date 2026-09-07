@@ -1,5 +1,4 @@
 // formatters.js — Data formatting utilities for display
-import { TIME_SLOT_MAP } from "../constants/timeSlots.js";
 
 // ── Currency ───────────────────────────────────────────
 export function formatETB(amount) {

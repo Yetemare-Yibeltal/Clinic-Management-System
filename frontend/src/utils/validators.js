@@ -10,7 +10,7 @@ export function isValidEmail(email) {
 // Valid formats: +251911223344, 0911223344, 0911-223-344
 export function isValidEthiopianPhone(phone) {
   if (!phone) return false;
-  const cleaned = phone.replace(/[\s\-]/g, "");
+  const cleaned = phone.replace(/[\s-]/g, "");
   const regex = /^(\+251|0)(9|7)\d{8}$/;
   return regex.test(cleaned);
 }
