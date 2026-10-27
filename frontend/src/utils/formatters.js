@@ -5,7 +5,15 @@ export function formatETB(amount) {
   if (amount === null || amount === undefined || isNaN(amount)) return "0 ETB";
   return `${Number(amount).toLocaleString("en-US")} ETB`;
 }
-
+export function formatDisplayDate(dateString) {
+  if (!dateString) return "";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 export function formatETBCompact(amount) {
   if (!amount) return "0 ETB";
   if (amount >= 1000000) return `${(amount / 1000000).toFixed(1)}M ETB`;
