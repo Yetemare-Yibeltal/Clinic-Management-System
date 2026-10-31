@@ -297,7 +297,7 @@ async function seedDoctors(departments) {
     },
   ];
 
-  const doctors = await User.insertMany(doctorsData);
+const doctors = await User.create(doctorsData);
   console.log(`${doctors.length} doctors seeded`);
   return doctors;
 }
@@ -486,7 +486,7 @@ async function seedPatients() {
     },
   ];
 
-  const patients = await User.insertMany(patientsData);
+ const patients = await User.create(patientsData);
   console.log(`${patients.length} patients seeded`);
   return patients;
 }
