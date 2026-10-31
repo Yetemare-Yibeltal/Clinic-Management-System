@@ -4,7 +4,12 @@ import { body } from "express-validator";
 import { register, login, getMe } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
-
+import {
+  forgotPassword,
+  resetPassword,
+  changeOwnPassword,
+  logout,
+} from "../controllers/auth.extra.controller.js";
 const router = Router();
 
 // ── Validation rules ──────────────────────────────
@@ -31,6 +36,11 @@ const loginRules = [
 ];
 
 // ── Routes ──────────────────────────────────────────
+
+router.post("/forgot-password", forgotPassword);
+router.patch("/reset-password", resetPassword);
+router.patch("/change-password", protect, changeOwnPassword);
+router.post("/logout", protect, logout);
 router.post("/register", registerRules, validate, register);
 router.post("/login", loginRules, validate, login);
 router.get("/me", protect, getMe);
