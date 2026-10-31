@@ -61,9 +61,11 @@ export async function getAppointmentReport({ range, startDate, endDate }) {
       ]),
     ]);
 
-  const rate = cancellationRate[0]
-    ? ((rate?.cancelled / rate?.total) * 100).toFixed(1)
-    : 0;
+  const stats = cancellationRate[0];
+  const rate =
+    stats && stats.total
+      ? ((stats.cancelled / stats.total) * 100).toFixed(1)
+      : 0;
 
   return {
     total,
