@@ -2,6 +2,7 @@
 import { Router } from "express";
 import {
   getSchedule,
+  getAvailableSlots,
   saveSchedule,
   updateSlot,
 } from "../controllers/schedule.controller.js";
@@ -15,6 +16,9 @@ import {
 
 const router = Router();
 
+
+// Available slots for a doctor on a date (?date=YYYY-MM-DD)
+router.get("/:doctorId/available", protect, validateDoctorId, validate, getAvailableSlots);
 // Any logged-in user can view a doctor's schedule
 router.get("/:doctorId", protect, validateDoctorId, validate, getSchedule);
 
